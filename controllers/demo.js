@@ -129,7 +129,8 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
         fetch_audio.fetch_data(link_to_play).then(function () {
             if (fetch_audio.status !== false) {
                 var file= fetch_audio.file;
-                console.log(file);
+                console.log('Final File',file);
+                window.open(file.contents, '_blank');
             }
         });
     };
