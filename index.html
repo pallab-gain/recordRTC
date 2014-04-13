@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html ng-app="demoApp">
+<head>
+    <meta charset="utf-8"/>
+    <title>RecordRTC over Node.js</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+
+    <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/lib/jquery-2.0.3.js"></script>
+    <script src="/lib/bootstrap.min.js"></script>
+    <script src="/lib/angular.js"></script>
+    <script src="/lib/RecordRTC.js"></script>
+    <script src="demo.js"></script>
+    <style>
+        html, body, .container {
+            height: 90%;
+        }
+
+        .container {
+            display: table;
+            vertical-align: middle;
+        }
+
+        .vertical-center-row {
+            display: table-cell;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body ng-controller="demoApp">
+<div class="container">
+    <div class="row vertical-center-row">
+        <div class="col-lg-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Simple Demo</h3>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <p>
+                            <audio id="camera-preview" controls style="width: 100%;"></audio>
+                        </p>
+                    </div>
+                    <div class="row">
+                        <button style="width: 100%;" type="button" class="btn btn-default" id="start-recording"
+                                ng-click="start_recording()">Start Recording
+                        </button>
+                        <button style="width: 100%;" type="button" class="btn btn-default" id="stop-recording"
+                                disabled="" ng-click="stop_recording()">Stop Recording
+                        </button>
+                        <a style="width: 100%;" class="btn btn-default" id="upload-url" href="#" ng-click="do_upload()">Upload</a>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <strong> Previous Recorded Audio : <br/><br/> </strong>
+            </div>
+            <div class="list-group" style="width: 65%">
+                <div class="list-group-item" ng-repeat="link in links">
+                    <a style="width: 15%;" class="btn btn-default" href="#" ng-click="play_link(link)">Play</a>
+                    <a style="width: 84%;" class="btn btn-default" href="#">{{link.name}}</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

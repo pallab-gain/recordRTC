@@ -1,0 +1,27 @@
+{
+    "name": "Record-RTC",
+    "description": "Yet Another We Audio Recorder using webrtc",
+    "version": "0.0.5",
+    "author": {
+        "name": "Xerxes",
+        "email": "Pallab Gain"
+    },
+    "scripts": {
+        "start": "NODE_ENV=developemnt nodemon app.js"
+    },
+    "dependencies": {
+        "express": "*",
+        "connect": "*",
+        "body-parser": "*",
+        "morgan": "*",
+        "method-override":"*",
+        "underscore": "*",
+        "jQuery": "~1.7.4",
+        "jsdom": "~0.9.0",
+        "async": "*",
+        "mysql": "*"
+    },
+    "engines": {
+        "node": ">= 0.8.0"
+    }
+}
