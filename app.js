@@ -3,17 +3,14 @@
  */
 
 (function () {
-    var fs, sys, app, express, path, logger, boydParser, methodOverride, _routes, mysql, db, async;
+    var fs, app, express, path, logger, boydParser, methodOverride, _routes, async;
     express = require('express');
     path = require('path');
     logger = require('morgan');
     bodyParser = require('body-parser');
     methodOverride = require('method-override');
     fs = require('fs');
-    sys = require('sys');
     _routes = express.Router();
-
-    mysql = require('mysql');
     async = require('async');
 
     app = express();
@@ -72,21 +69,21 @@
     });
     _routes.post('/fetch_data', function (req, res) {
 
-        if( typeof req.body['name'] !== 'undefined' ){
+        if (typeof req.body['name'] !== 'undefined') {
             var name = req.body['name'];
-            try{
-                var file = fs.readFileSync(app.get('upload_dir') +'/'+name);
+            try {
+                var file = fs.readFileSync(app.get('upload_dir') + '/' + name);
                 var file = {
                     name: name,
                     type: 'audio/wav',
                     contents: "data:audio/wav;base64,".concat(new Buffer(file).toString("base64"))
                 };
                 return res.send({status: true, file: file});
-            }catch (err){
+            } catch (err) {
                 return res.send({status: false, msg: err});
             }
-        }else{
-            return res.send({status: false, msg:'File not found'});
+        } else {
+            return res.send({status: false, msg: 'File not found'});
         }
 
     })
