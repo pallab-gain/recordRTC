@@ -3,13 +3,16 @@
  */
 
 (function () {
-    var app, express, path, logger, boydParser, methodOverride, _routes, mysql, db, async;
+    var fs, sys, app, express, path, logger, boydParser, methodOverride, _routes, mysql, db, async;
     express = require('express');
     path = require('path');
     logger = require('morgan');
     bodyParser = require('body-parser');
     methodOverride = require('method-override');
+    fs = require('fs');
+    sys = require('sys');
     _routes = express.Router();
+
     mysql = require('mysql');
     async = require('async');
 
@@ -30,7 +33,7 @@
     })
 
     app = express();
-    app.use(logger());
+    /*app.use(logger());*/
     app.use(bodyParser({
         limit: '60mb'
     }));
@@ -38,6 +41,7 @@
 
     // all environments
     app.set('port', process.env.PORT || 3000);
+    app.set('upload_dir', './uploads');
     //static files
     app.use(express.static(path.join(__dirname, '/controllers/')));
 
@@ -51,40 +55,36 @@
     });
     //upload data
     _routes.post('/upload', function (req, res) {
-        var audio = req.body.audio;
-        var name = audio['name'];
-        var type = audio['type'];
-        var contents = new Buffer( (audio['contents'].split(',')) [1],"base64");
+        var file = req.body.audio;
+        var fileRootName = file.name.split('.').shift(),
+            fileExtension = file.name.split('.').pop(),
+            filePathBase = app.get('upload_dir') + '/',
+            fileRootNameWithBase = filePathBase + fileRootName,
+            filePath = fileRootNameWithBase + '.' + fileExtension,
+            fileBuffer;
 
-        var sql = db.format('insert into audio_table(name,type,contents) values (?,?,?)', [name, type, contents]);
-        /*console.log(contents);*/
-        async.series([
-            function (callback) {
-                db.query(sql, function (err, status) {
-                    if (err) {
-                        return callback(err, null);
-                    } else {
-                        return callback(null, status);
-                    }
-                })
+        try {
+            while (fs.existsSync(filePath)) {
+                filePath = fileRootNameWithBase + fileExtension;
             }
-        ], function (err, result) {
-            if (err) {
-                return res.send({status: false, msg: err});
-            } else {
-                return res.send({status: true, msg: 'Successfully saved!'});
-            }
-        });
+
+            file.contents = file.contents.split(',').pop();
+            fileBuffer = new Buffer(file.contents, "base64");
+            fs.writeFileSync(filePath, fileBuffer);
+            return res.send({status: true, msg: 'successfully saved to disk'});
+        } catch (err) {
+            return res.send({status: false, msg: err});
+        }
+
+
     });
     _routes.get('/fetch_link', function (req, res) {
-        var sql = db.format('select name as name from audio_table', []);
-        db.query(sql, function (err, args) {
-            if (err) {
-                return res.send({status: false, msg: 'error fetching url list'});
-            } else {
-                return res.send({status: true, links: args});
-            }
-        })
+        try {
+            var files = fs.readdirSync(app.get('upload_dir'));
+            return res.send({status: true, links: files});
+        } catch (err) {
+            return res.send({status: false, msg: err});
+        }
     });
     _routes.post('/fetch_data', function (req, res) {
         var name = req.body;
@@ -109,3 +109,4 @@
     });
 
 }());
+

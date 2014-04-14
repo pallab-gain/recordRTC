@@ -9,10 +9,12 @@ app.factory('upload_record', function ($http, $q) {
     upload_record.upload = function (rec_data) {
         var d = $q.defer();
         var url = '/upload';
-        $http({'method': 'POST', url: url, data: rec_data}).success(function (data, status, headers, config) {
-            upload_record.status = data;
-            d.resolve();
-        });
+        $http({'method': 'POST', url: url, data: rec_data, headers: {
+            'Content-Type': 'application/json'
+        }}).success(function (data, status, headers, config) {
+                upload_record.status = data;
+                d.resolve();
+            });
         return d.promise;
     }
     return upload_record;
@@ -128,8 +130,8 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
     $scope.play_link = function (link_to_play) {
         fetch_audio.fetch_data(link_to_play).then(function () {
             if (fetch_audio.status !== false) {
-                var file= fetch_audio.file;
-                console.log('Final File',file);
+                var file = fetch_audio.file;
+                console.log('Final File', file);
                 window.open(file.contents, '_blank');
             }
         });
