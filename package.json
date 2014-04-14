@@ -4,7 +4,7 @@
     "version": "0.0.5",
     "author": {
         "name": "Xerxes",
-        "email": "Pallab Gain"
+        "email": "pallab.gain@gmail.com"
     },
     "scripts": {
         "start": "NODE_ENV=developemnt nodemon app.js"
