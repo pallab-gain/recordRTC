@@ -62,13 +62,15 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
     $scope.cur_index = undefined;
     $('#record-url').attr("disabled", true);
     $('#upload-url').attr("disabled", true);
+    $('#loading-url').fadeOut(1);
     fetch_audio.fetch_link().then(function () {
         $scope.links = fetch_audio.links;
     });
     $scope.start_recording = function () {
+        $('#loading-url').fadeOut(1);
         $('#record-url').attr("disabled", true);
         $('#upload-url').attr("disabled", true);
-        attachStream($scope.cur_index,'');
+        attachStream($scope.cur_index, '');
 
         $scope.cur_index = undefined;
         $scope.audio_data = undefined;
@@ -80,7 +82,7 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
             $scope.cameraPreview.play();
 
             $scope.recordAudio = RecordRTC(stream, {
-                bufferSize: 16384
+                bufferSize: 1024
             });
 
             $scope.recordAudio.startRecording();
@@ -90,6 +92,7 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
         });
     };
     $scope.stop_recording = function () {
+        $('#loading-url').fadeOut(1);
         $('#record-url').attr("disabled", false);
         $('#upload-url').attr("disabled", false);
 
@@ -112,6 +115,9 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
     };
     $scope.do_upload = function () {
         /*console.log('will upload data to specific url ', $scope.audio_data);*/
+        $('#loading-url').fadeIn(1);
+        $scope.loading_msg = 'Uploading to server....';
+
         var fileName = getRandomString();
         var files = { };
         files.audio = {
@@ -128,20 +134,22 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
                     $('#record-url').attr("disabled", true);
                     $('#upload-url').attr("disabled", true);
                     $scope.cur_index = undefined;
+                    $('#loading-url').fadeOut(2000);
                 });
             }
         });
     };
     $scope.play_link = function (link_to_play, index) {
-        attachStream($scope.cur_index,'');
+        $('#loading-url').fadeIn(1);
+        $scope.loading_msg = 'Downloading audio files from server....';
+
+        attachStream($scope.cur_index, '');
         $scope.cur_index = index;
         fetch_audio.fetch_data(link_to_play).then(function () {
             if (fetch_audio.status !== false) {
                 var file = fetch_audio.file;
+                $('#loading-url').fadeOut(1000);
                 attachStream($scope.cur_index, file.contents);
-                /*window.mysrc = file.contents;
-                 window.myele = ele;*/
-                //window.open(file.contents, '_blank');
             } else {
                 console.error('error fetching file content');
             }
