@@ -58,9 +58,13 @@
                 <strong> Previous Recorded Audio : <br/><br/> </strong>
             </div>
             <div class="list-group" style="width: 65%">
-                <div class="list-group-item" ng-repeat="link in links">
-                    <a style="width: 15%;" class="btn btn-default" href="#" ng-click="play_link(link)">Play</a>
+                <div class="list-group-item" ng-repeat="link in links track by $index">
+                    <a style="width: 15%;" class="btn btn-default" href="#" ng-click="play_link(link,$index)">Play</a>
                     <a style="width: 84%;" class="btn btn-default" href="#">{{link}}</a>
+                    <audio></audio>
+                    <audio class="listen_audio" ng-show="cur_index===$index" controls="" style="width: 100%;"
+                           controls="" autoplay="" name="media">
+                    </audio>
                 </div>
             </div>
         </div>

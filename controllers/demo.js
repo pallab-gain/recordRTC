@@ -37,7 +37,7 @@ app.factory('fetch_audio', function ($http, $q) {
     fetch_audio.fetch_data = function (name) {
         var d = $q.defer();
         var url = '/fetch_data';
-        $http({method: 'POST', url: url, data: name}).success(function (data, status, headers, config) {
+        $http({method: 'POST', url: url, data: {name: name}}).success(function (data, status, headers, config) {
             if (data.status === true) {
                 fetch_audio.file = data.file;
             } else {
@@ -59,6 +59,7 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
     $scope.recordAudio = undefined;
     $scope.audio_data = undefined;
     $scope.links = undefined;
+    $scope.cur_index = undefined;
     $('#record-url').attr("disabled", true);
     $('#upload-url').attr("disabled", true);
     fetch_audio.fetch_link().then(function () {
@@ -67,7 +68,9 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
     $scope.start_recording = function () {
         $('#record-url').attr("disabled", true);
         $('#upload-url').attr("disabled", true);
+        attachStream($scope.cur_index,'');
 
+        $scope.cur_index = undefined;
         $scope.audio_data = undefined;
         $scope.startRecording.disabled = true;
         navigator.getUserMedia({
@@ -90,6 +93,7 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
         $('#record-url').attr("disabled", false);
         $('#upload-url').attr("disabled", false);
 
+        $scope.cur_index = undefined;
         $scope.startRecording.disabled = false;
         $scope.stopRecording.disabled = true;
 
@@ -108,7 +112,6 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
     };
     $scope.do_upload = function () {
         /*console.log('will upload data to specific url ', $scope.audio_data);*/
-
         var fileName = getRandomString();
         var files = { };
         files.audio = {
@@ -116,29 +119,43 @@ app.controller('demoApp', function ($scope, upload_record, fetch_audio) {
             type: $scope.isFirefox ? 'video/webm' : 'audio/wav',
             contents: $scope.audio_data
         };
-        console.log(files);
         files.isFirefox = $scope.isFirefox;
         upload_record.upload(files).then(function (data) {
             if (upload_record.status['status'] === true) {
                 $('#upload-url').attr("disabled", true);
                 fetch_audio.fetch_link().then(function () {
                     $scope.links = fetch_audio.links;
+                    $('#record-url').attr("disabled", true);
+                    $('#upload-url').attr("disabled", true);
+                    $scope.cur_index = undefined;
                 });
             }
         });
     };
-    $scope.play_link = function (link_to_play) {
+    $scope.play_link = function (link_to_play, index) {
+        attachStream($scope.cur_index,'');
+        $scope.cur_index = index;
         fetch_audio.fetch_data(link_to_play).then(function () {
             if (fetch_audio.status !== false) {
                 var file = fetch_audio.file;
-                console.log('Final File', file);
-                window.open(file.contents, '_blank');
+                attachStream($scope.cur_index, file.contents);
+                /*window.mysrc = file.contents;
+                 window.myele = ele;*/
+                //window.open(file.contents, '_blank');
+            } else {
+                console.error('error fetching file content');
             }
         });
     };
 });
 
-function getRandomString() {
+attachStream = function (index, stream) {
+    if (typeof index !== 'undefined') {
+        var ele = $('.listen_audio')[index];
+        ele.src = stream;
+    }
+}
+getRandomString = function () {
     if (window.crypto) {
         var a = window.crypto.getRandomValues(new Uint32Array(3)),
             token = '';

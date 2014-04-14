@@ -16,22 +16,6 @@
     mysql = require('mysql');
     async = require('async');
 
-
-    db = mysql.createConnection({
-        host: 'localhost',
-        port: 3306,
-        database: 'record_rtc',
-        user: 'root',
-        password: ''
-    });
-    db.connect(function (err, status) {
-        if (err) {
-            console.err(err);
-        } else {
-            console.log('mysql connect successful!');
-        }
-    })
-
     app = express();
     /*app.use(logger());*/
     app.use(bodyParser({
@@ -87,22 +71,24 @@
         }
     });
     _routes.post('/fetch_data', function (req, res) {
-        var name = req.body;
-        var sql = db.format('select type, contents from audio_table where name = ?', [name['name']]);
-        db.query(sql, function (err, data) {
-            data = data[0];
-            if (err) {
-                return res.send({status: false});
-            } else {
+
+        if( typeof req.body['name'] !== 'undefined' ){
+            var name = req.body['name'];
+            try{
+                var file = fs.readFileSync(app.get('upload_dir') +'/'+name);
                 var file = {
                     name: name,
-                    type: data.type,
-                    contents: "data:audio/wav;base64,".concat(new Buffer(data.contents).toString("base64"))
+                    type: 'audio/wav',
+                    contents: "data:audio/wav;base64,".concat(new Buffer(file).toString("base64"))
                 };
-                /*console.log(file);*/
                 return res.send({status: true, file: file});
+            }catch (err){
+                return res.send({status: false, msg: err});
             }
-        });
+        }else{
+            return res.send({status: false, msg:'File not found'});
+        }
+
     })
     app.listen(app.get('port'), function () {
         return console.log("Listening on " + (app.get('port')) + "..");
